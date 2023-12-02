@@ -1,4 +1,4 @@
-module common-utils
+module common-service
 
 go 1.21.3
 

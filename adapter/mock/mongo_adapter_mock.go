@@ -5,7 +5,7 @@
 package mock
 
 import (
-	adapter "common-utils/adapter"
+	adapter "common-service/adapter"
 	context "context"
 	reflect "reflect"
 
