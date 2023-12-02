@@ -12,7 +12,7 @@ type MongoAdapter interface {
 	UpdateOne(ctx context.Context, filter interface{}, update interface{}, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error)
 	DeleteOne(ctx context.Context, filter interface{}, opts ...*options.DeleteOptions) (*mongo.DeleteResult, error)
 	FindOne(ctx context.Context, filter interface{}, opts ...*options.FindOneOptions) *mongo.SingleResult
-	Find(ctx context.Context, filter interface{}, opts ...*options.FindOptions) (cur *mongo.Cursor, err error)
+	Find(ctx context.Context, filter interface{}, opts ...*options.FindOptions) (Cursor, error)
 }
 
 type MongoAdapterImpl struct {
@@ -39,7 +39,7 @@ func (m *MongoAdapterImpl) FindOne(ctx context.Context, filter interface{}, opts
 	return m.collection.FindOne(ctx, filter, opts...)
 }
 
-func (m *MongoAdapterImpl) Find(ctx context.Context, filter interface{}, opts ...*options.FindOptions) (cur *mongo.Cursor, err error) {
+func (m *MongoAdapterImpl) Find(ctx context.Context, filter interface{}, opts ...*options.FindOptions) (Cursor, error) {
 	return m.collection.Find(ctx, filter, opts...)
 }
 
