@@ -5,7 +5,7 @@
 package mock
 
 import (
-	adapter "common-service/adapter"
+	adapter "github.com/BerryTracer/common-service/adapter"
 	context "context"
 	reflect "reflect"
 

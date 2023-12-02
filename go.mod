@@ -1,4 +1,4 @@
-module common-service
+module github.com/BerryTracer/common-service
 
 go 1.21.3
 
