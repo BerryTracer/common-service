@@ -7,11 +7,23 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+type SingleResult interface {
+	Decode(v interface{}) error
+}
+
+type SingleResultMongoImpl struct {
+	*mongo.SingleResult
+}
+
+func (r *SingleResultMongoImpl) Decode(v interface{}) error {
+	return r.SingleResult.Decode(v)
+}
+
 type MongoAdapter interface {
 	InsertOne(ctx context.Context, document interface{}, opts ...*options.InsertOneOptions) (*mongo.InsertOneResult, error)
 	UpdateOne(ctx context.Context, filter interface{}, update interface{}, opts ...*options.UpdateOptions) (*mongo.UpdateResult, error)
 	DeleteOne(ctx context.Context, filter interface{}, opts ...*options.DeleteOptions) (*mongo.DeleteResult, error)
-	FindOne(ctx context.Context, filter interface{}, opts ...*options.FindOneOptions) *mongo.SingleResult
+	FindOne(ctx context.Context, filter interface{}, opts ...*options.FindOneOptions) SingleResult
 	Find(ctx context.Context, filter interface{}, opts ...*options.FindOptions) (Cursor, error)
 }
 
@@ -35,8 +47,9 @@ func (m *MongoAdapterImpl) DeleteOne(ctx context.Context, filter interface{}, op
 	return m.collection.DeleteOne(ctx, filter, opts...)
 }
 
-func (m *MongoAdapterImpl) FindOne(ctx context.Context, filter interface{}, opts ...*options.FindOneOptions) *mongo.SingleResult {
-	return m.collection.FindOne(ctx, filter, opts...)
+func (m *MongoAdapterImpl) FindOne(ctx context.Context, filter interface{}, opts ...*options.FindOneOptions) SingleResult {
+	singleResult := m.collection.FindOne(ctx, filter, opts...)
+	return &SingleResultMongoImpl{singleResult}
 }
 
 func (m *MongoAdapterImpl) Find(ctx context.Context, filter interface{}, opts ...*options.FindOptions) (Cursor, error) {
