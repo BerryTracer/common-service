@@ -7,16 +7,35 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func LoadEnv(envName string) (string, error) {
-	env := os.Getenv(envName)
+type EnvLoader interface {
+	Getenv(key string) string
+	Load() error
+}
+
+type RealEnvLoader struct{}
+
+func NewRealEnvLoader() RealEnvLoader {
+	return RealEnvLoader{}
+}
+
+func (RealEnvLoader) Getenv(key string) string {
+	return os.Getenv(key)
+}
+
+func (RealEnvLoader) Load() error {
+	return godotenv.Load()
+}
+
+func LoadEnv(envLoader EnvLoader, envName string) (string, error) {
+	env := envLoader.Getenv(envName)
 	if env == "" {
 		// Load .env file
-		err := godotenv.Load()
+		err := envLoader.Load()
 		if err != nil {
 			return "", err
 		}
 
-		env = os.Getenv(envName)
+		env = envLoader.Getenv(envName)
 		if env == "" {
 			return "", errors.New(envName + " environment variable not set")
 		}
@@ -25,11 +44,11 @@ func LoadEnv(envName string) (string, error) {
 	return env, nil
 }
 
-func LoadEnvWithDefault(envName string, defaultValue string) (string, error) {
-	env := os.Getenv(envName)
+func LoadEnvWithDefault(envLoader EnvLoader, envName string, defaultValue string) (string, error) {
+	env := envLoader.Getenv(envName)
 	if env == "" {
 		// Load .env file
-		err := godotenv.Load()
+		err := envLoader.Load()
 		if err != nil {
 			// If .env loading fails, use the default value
 			if defaultValue != "" {
@@ -38,7 +57,7 @@ func LoadEnvWithDefault(envName string, defaultValue string) (string, error) {
 			return "", err
 		}
 
-		env = os.Getenv(envName)
+		env = envLoader.Getenv(envName)
 		if env == "" {
 			if defaultValue != "" {
 				return defaultValue, nil
